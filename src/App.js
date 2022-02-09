@@ -1,56 +1,63 @@
-import { useState } from 'react';
-import { places } from './data.js';
-import { getImageUrl } from './utils.js';
+import { useState } from "react";
+import { places } from "./data.js";
+import { getImageUrl } from "./utils.js";
+import { useContext } from "react";
+import { imageSizeContext } from "./Context.js";
+
+/*
+  Remove the imageSize prop, and instead 
+  pass it from the App component directly 
+  to PlaceImage.
+
+*/
 
 export default function App() {
   const [isLarge, setIsLarge] = useState(false);
-  const imageSize = isLarge ? 150 : 100;
+  //now reads deaful of 100
+  const imageSize = useContext(imageSizeContext);
   return (
     <>
       <label>
         <input
           type="checkbox"
           checked={isLarge}
-          onChange={e => {
+          onChange={(e) => {
             setIsLarge(e.target.checked);
           }}
         />
         Use large images
       </label>
       <hr />
-      <List imageSize={imageSize} />
+      <List imageSize={imageSize} isLarge={isLarge} />
     </>
-  )
+  );
 }
 
-function List({ imageSize }) {
-  const listItems = places.map(place =>
+function List({ imageSize, isLarge }) {
+  const listItems = places.map((place) => (
     <li key={place.id}>
-      <Place
-        place={place}
-        imageSize={imageSize}
-      />
+      <imageSizeContext.Provider value={isLarge ? imageSize + 50 : imageSize}>
+        <Place place={place} />
+      </imageSizeContext.Provider>
     </li>
-  );
+  ));
   return <ul>{listItems}</ul>;
 }
 
-function Place({ place, imageSize }) {
+function Place({ place }) {
   return (
     <>
-      <PlaceImage
-        place={place}
-        imageSize={imageSize}
-      />
+      <PlaceImage place={place} />
       <p>
         <b>{place.name}</b>
-        {': ' + place.description}
+        {": " + place.description}
       </p>
     </>
   );
 }
 
-function PlaceImage({ place, imageSize }) {
+function PlaceImage({ place }) {
+  const imageSize = useContext(imageSizeContext);
   return (
     <img
       src={getImageUrl(place)}
